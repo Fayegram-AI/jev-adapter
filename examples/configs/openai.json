@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "provider": "openai-compatible",
+  "model": "YOUR_OPENAI_MODEL",
+  "apiKeyEnv": "OPENAI_API_KEY",
+  "responseFormat": "json_schema",
+  "timeoutMs": 30000
+}

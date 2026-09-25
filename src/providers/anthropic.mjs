@@ -1,0 +1,70 @@
+import { optionsObject, TRANSPORT_FIELDS } from '../options.mjs';
+import { AdapterError, withResponseMeta, requireCondition as check } from '../errors.mjs';
+import { isRecord, validateRequest } from '../validation.mjs';
+import { JsonTransport, parseBaseURL, validateApiKey } from '../transport.mjs';
+import { buildPrompt, buildResponseSchema, normalizeGenerated } from '../schema.mjs';
+import { generationOptions, anthropicUsage } from './shared.mjs';
+
+/** Uses one forced, non-executed tool as an output schema, not an agent tool loop. */
+export class AnthropicProvider {
+  name = 'anthropic';
+  probabilitySource = 'elicited';
+  #transport;
+  #options;
+
+  constructor(options = {}) {
+    const { apiKey, model, baseURL = 'https://api.anthropic.com',
+    maxTokens = 4096, parameters = {}, ...transportOptions } = optionsObject(options,
+      ['apiKey', 'model', 'baseURL', 'maxTokens', 'parameters', ...TRANSPORT_FIELDS], 'Anthropic options');
+    const endpoint = parseBaseURL(baseURL, { originOnly: true });
+    const supplied = apiKey === undefined && endpoint.origin === 'https://api.anthropic.com'
+      ? process.env.ANTHROPIC_API_KEY : apiKey;
+    const key = validateApiKey(supplied, 'ANTHROPIC_API_KEY');
+    this.#options = generationOptions({ model, maxTokens, parameters });
+    check(this.#options.parameters.thinking === undefined,
+      'Forced-tool evaluations do not enable extended thinking.', 'CONFIGURATION_ERROR');
+    this.defaultModel = this.#options.model;
+    this.#transport = new JsonTransport({ ...transportOptions, baseURL: endpoint.baseURL,
+      headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01' }, secrets: [key] });
+  }
+
+  async evaluate(input, options = {}) {
+    const request = validateRequest(input, this.defaultModel ?? '');
+    const prompt = buildPrompt(request);
+    const body = { ...this.#options.parameters, model: request.model,
+      max_tokens: this.#options.maxTokens, stream: false, system: prompt.system,
+      messages: [{ role: 'user', content: prompt.user }],
+      tools: [{ name: 'submit_decisions', description: 'Return only the requested decision probabilities.',
+        input_schema: buildResponseSchema(request.questions) }],
+      tool_choice: { type: 'tool', name: 'submit_decisions', disable_parallel_tool_use: true },
+    };
+    const { data, meta } = await this.#transport.request('POST', '/v1/messages', body, options);
+    return withResponseMeta(meta, () => {
+      check(isRecord(data) && !data.error && Array.isArray(data.content), 'Invalid Messages response.', 'INVALID_RESPONSE');
+      if (data.stop_reason === 'refusal' || data.stop_details?.type === 'refusal') {
+        throw new AdapterError('Model refused the evaluation.', { code: 'MODEL_REFUSAL', ...meta });
+      }
+      if (data.stop_reason === 'max_tokens' || data.stop_reason === 'model_context_window_exceeded') {
+        throw new AdapterError('Model output was truncated; adjust input or maxTokens explicitly.', { code: 'TRUNCATED_OUTPUT', ...meta });
+      }
+      check(data.stop_reason === 'tool_use', 'Provider did not return the required decision output.', 'INVALID_RESPONSE');
+      const tools = data.content.filter(block => isRecord(block) && block.type === 'tool_use');
+      check(tools.length === 1 && tools[0].name === 'submit_decisions',
+        'Provider must return exactly one submit_decisions result.', 'INVALID_RESPONSE');
+      return normalizeGenerated(tools[0].input, request, { model: data.model,
+        usage: anthropicUsage(data.usage), meta: { ...meta, provider: this.name, responseFormat: 'tool' } });
+    });
+  }
+
+  async listModels(options = {}) {
+    const { data, meta } = await this.#transport.request('GET', '/v1/models', undefined, options);
+    return withResponseMeta(meta, () => {
+      check(isRecord(data) && Array.isArray(data.data) && data.data.every(m => isRecord(m) && typeof m.id === 'string' && m.id.trim()),
+        'Model-list response must contain data with model IDs.', 'INVALID_RESPONSE');
+      // Preserve pagination explicitly; never label the first page as a complete list.
+      return { models: data.data.map(m => ({ ...m, name: m.id })),
+        ...(data.has_more === undefined ? {} : { has_more: data.has_more }),
+        ...(data.last_id === undefined ? {} : { last_id: data.last_id }) };
+    });
+  }
+}

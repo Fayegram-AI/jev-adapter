@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "provider": "anthropic",
+  "model": "YOUR_ANTHROPIC_MODEL",
+  "apiKeyEnv": "ANTHROPIC_API_KEY",
+  "timeoutMs": 30000
+}

@@ -1,0 +1,2 @@
+{"state": "Test report: 18 passed, 2 failed.", "questions": {"failed": {"type": "noul", "instructions": "Does the report explicitly state that a test failed?"}}}
+{"state": "Tests were not run.", "questions": {"failed": {"type": "noul", "instructions": "Does the report explicitly state that a test failed?"}}}

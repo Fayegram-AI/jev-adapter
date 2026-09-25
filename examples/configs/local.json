@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "provider": "openai-compatible",
+  "model": "YOUR_LOCAL_MODEL",
+  "baseURL": "http://127.0.0.1:8000/v1",
+  "noAuth": true,
+  "responseFormat": "json_schema",
+  "tokenParameter": "max_tokens",
+  "timeoutMs": 30000
+}

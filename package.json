@@ -1,0 +1,67 @@
+{
+  "name": "@fayegram-ai/jev-adapter",
+  "version": "0.1.0",
+  "description": "JavaScript SDK for structured decisions with native Jev and configurable model backends",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Fayegram-AI/jev-adapter.git"
+  },
+  "homepage": "https://github.com/Fayegram-AI/jev-adapter",
+  "bugs": {
+    "url": "https://github.com/Fayegram-AI/jev-adapter/issues"
+  },
+  "keywords": [
+    "decision",
+    "sdk",
+    "cli",
+    "jev",
+    "llm"
+  ],
+  "type": "module",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=22.16.0"
+  },
+  "exports": {
+    ".": {
+      "types": "./src/index.d.mts",
+      "import": "./src/index.mjs"
+    }
+  },
+  "bin": {
+    "jev-decision": "./bin/jev.mjs",
+    "decision": "./bin/jev.mjs"
+  },
+  "scripts": {
+    "build": "node scripts/build-package.mjs",
+    "test": "node scripts/test.mjs",
+    "test:coverage": "node scripts/test.mjs --coverage",
+    "check": "node scripts/check.mjs",
+    "typecheck": "node scripts/typecheck.mjs",
+    "verify": "npm run check && npm test && npm run typecheck && npm run test:package",
+    "test:package": "node scripts/package-smoke.mjs",
+    "smoke:live": "node scripts/live-smoke.mjs",
+    "cli": "node bin/jev.mjs",
+    "models": "node --env-file-if-exists=.env bin/jev.mjs models",
+    "ask": "node --env-file-if-exists=.env bin/jev.mjs evaluate examples/request.json",
+    "validate": "node bin/jev.mjs validate examples/request.json",
+    "example": "node --env-file-if-exists=.env examples/basic.mjs",
+    "example:extended": "node --env-file-if-exists=.env examples/extended.mjs"
+  },
+  "license": "MIT",
+  "files": [
+    "src/",
+    "bin/",
+    "examples/",
+    "docs/",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "SECURITY.md",
+    "CONTRIBUTING.md",
+    ".env.example"
+  ]
+}

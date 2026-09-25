@@ -1,0 +1,6 @@
+* text=auto eol=lf
+*.zip binary
+*.tgz binary
+*.bundle binary
+
+# Raw verification evidence is generated outside the tracked source tree.

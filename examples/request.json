@@ -1,0 +1,31 @@
+{
+  "state": {
+    "error": "ModuleNotFoundError: No module named 'pytest'",
+    "test_process": "The test runner failed during startup; no test cases executed."
+  },
+  "questions": {
+    "category": {
+      "type": "choice",
+      "instructions": "Classify the failure using only the supplied evidence.",
+      "criteria": {
+        "dependency": "A required package or module cannot be imported.",
+        "network": "A network operation failed or timed out.",
+        "assertion": "A test executed and an assertion failed.",
+        "unknown": "The evidence does not establish any of these causes."
+      }
+    },
+    "missing_dependency": {
+      "type": "noul",
+      "instructions": "Does the error indicate that a required Python package is unavailable in the active environment?"
+    },
+    "test_execution": {
+      "type": "score",
+      "instructions": "How far did the test process progress according to the supplied evidence?",
+      "criteria": [
+        "The test process did not reach test-case execution.",
+        "Test cases started, but the run did not finish.",
+        "The test run finished, regardless of whether tests passed."
+      ]
+    }
+  }
+}

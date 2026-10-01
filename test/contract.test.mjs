@@ -86,9 +86,11 @@ test('minor probability rounding is tolerated without renormalization', () => {
 });
 
 test('score legends can preserve structured criterion descriptions', () => {
-  const req = copy(request); req.questions.level.criteria[0] = { meaning: 'Low' };
-  const res = copy(response); res.answers.level.legend[0] = { meaning: 'Low' };
-  assert.deepEqual(validateResult(res, req.questions).answers.level.legend[0], { meaning: 'Low' });
+  const req = copy(request); req.questions.level.criteria[0] = { meaning: { label: 'Low', rank: 0 }, tags: ['start'] };
+  const res = copy(response); res.answers.level.legend[0] = { tags: ['start'], meaning: { rank: 0, label: 'Low' } };
+  assert.deepEqual(validateResult(res, req.questions).answers.level.legend[0], res.answers.level.legend[0]);
+  res.answers.level.legend[0].meaning.rank = 1;
+  assert.throws(() => validateResult(res, req.questions), { code: 'INVALID_RESPONSE' });
 });
 
 test('choice policy requires an explicit probability threshold', () => {

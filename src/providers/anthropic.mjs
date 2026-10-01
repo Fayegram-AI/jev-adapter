@@ -2,6 +2,7 @@ import { optionsObject, TRANSPORT_FIELDS } from '../options.mjs';
 import { AdapterError, withResponseMeta, requireCondition as check } from '../errors.mjs';
 import { isRecord, validateRequest } from '../validation.mjs';
 import { JsonTransport, parseBaseURL, validateApiKey } from '../transport.mjs';
+import { environmentValue } from '../runtime-env.mjs';
 import { buildPrompt, buildResponseSchema, normalizeGenerated } from '../schema.mjs';
 import { generationOptions, anthropicUsage } from './shared.mjs';
 
@@ -18,7 +19,7 @@ export class AnthropicProvider {
       ['apiKey', 'model', 'baseURL', 'maxTokens', 'parameters', ...TRANSPORT_FIELDS], 'Anthropic options');
     const endpoint = parseBaseURL(baseURL, { originOnly: true });
     const supplied = apiKey === undefined && endpoint.origin === 'https://api.anthropic.com'
-      ? process.env.ANTHROPIC_API_KEY : apiKey;
+      ? environmentValue('ANTHROPIC_API_KEY') : apiKey;
     const key = validateApiKey(supplied, 'ANTHROPIC_API_KEY');
     this.#options = generationOptions({ model, maxTokens, parameters });
     check(this.#options.parameters.thinking === undefined,

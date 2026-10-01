@@ -117,6 +117,18 @@ test('actual HTTP integration posts and reads a mixed native response', async t 
   assert.equal(result.meta.requestId, 'http-fixture');
 });
 
+test('default fetch uses the global receiver required by browser fetch', async () => {
+  const original = globalThis.fetch;
+  globalThis.fetch = function () {
+    assert.equal(this, globalThis);
+    return jsonResponse({ ok: true });
+  };
+  try {
+    const transport = new JsonTransport({ baseURL: 'https://example.com' });
+    assert.deepEqual((await transport.request('GET', '/test')).data, { ok: true });
+  } finally { globalThis.fetch = original; }
+});
+
 test('deadline covers stalled HTTP response bodies, not just headers', async t => {
   const baseURL = await localServer(t, (req, res) => {
     req.resume();

@@ -13,6 +13,7 @@ validated, structured decisions.
 | Guide | Purpose |
 | --- | --- |
 | [Getting started](guides/GETTING_STARTED.md) | Package installation, credentials, JavaScript/TypeScript integration, and first evaluation |
+| [Browser integration](guides/BROWSER.md) | Direct browser use, CORS requirements, and credential exposure |
 | [Platforms](guides/PLATFORMS.md) | Windows, macOS, and Linux setup |
 | [Switching models](guides/SWITCHING_MODELS.md) | Backend and model selection |
 | [Customization](guides/CUSTOMIZATION.md) | Questions, templates, extensions, and policies |

@@ -28,6 +28,7 @@
   "exports": {
     ".": {
       "types": "./src/index.d.mts",
+      "browser": "./src/index.mjs",
       "import": "./src/index.mjs"
     }
   },

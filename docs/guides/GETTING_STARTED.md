@@ -6,10 +6,11 @@ evaluate request files.
 
 ## Prerequisites
 
-Use Node.js **22.16 or newer**, npm, and a TypeSafe API key for the default Jev
-backend. The package runs on the server with Node's built-in `fetch`; it has no
-runtime dependencies and is not a browser SDK. Other backends use their own keys;
-see [switching models](SWITCHING_MODELS.md).
+This guide's example uses Node.js **22.16 or newer**, npm, and a TypeSafe API key
+for the default Jev backend. The SDK also loads in modern browsers; direct calls
+depend on the provider's CORS policy and an explicit client-safe credential. See
+[browser integration](BROWSER.md). Other backends use their own keys; see
+[switching models](SWITCHING_MODELS.md).
 
 ## Install into your application
 

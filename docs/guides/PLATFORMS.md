@@ -2,10 +2,12 @@
 
 ## Compatibility and verification
 
-The server-side JavaScript SDK and optional command runner target native Windows, macOS and Linux with
-Node.js **22.16 or newer**. Runtime uses Node built-ins, with no native add-ons,
-third-party runtime dependencies, compilation step or Bash dependency. WSL is not
-required. This is a Node package, not a standalone `.exe`, `.app`, or browser SDK.
+The SDK targets Node.js **22.16 or newer** on native Windows, macOS, and Linux,
+and modern browsers through a browser application's module bundler. Its SDK
+module graph uses standard web APIs and has no third-party runtime dependencies.
+The optional command runner uses Node built-ins and remains Node-only. WSL and
+Bash are not required, and no standalone `.exe` or `.app` is provided. Direct
+browser calls also depend on [provider CORS and credential rules](BROWSER.md).
 
 For application integration, follow the [SDK quickstart](GETTING_STARTED.md).
 The shell-specific source commands below are for working in a source checkout.

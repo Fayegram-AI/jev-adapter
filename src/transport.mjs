@@ -1,10 +1,20 @@
 import { optionsObject } from './options.mjs';
-import { setTimeout as sleep } from 'node:timers/promises';
 import { AdapterError, requireCondition as check } from './errors.mjs';
 import { deadline, withSignal } from './async.mjs';
 
 const RETRY_STATUSES = new Set([429, 502, 503, 504, 529]);
 const MAX_BYTES = 64 * 1024 * 1024;
+const UTF8_ENCODER = new TextEncoder();
+
+function sleep(delay, signal) {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => { cleanup(); resolve(); }, delay);
+    const aborted = () => { cleanup(); reject(signal.reason); };
+    const cleanup = () => { clearTimeout(timer); signal.removeEventListener('abort', aborted); };
+    signal.addEventListener('abort', aborted, { once: true });
+    if (signal.aborted) aborted();
+  });
+}
 
 export function parseBaseURL(baseURL, { originOnly = false } = {}) {
   check(typeof baseURL === 'string' && !baseURL.includes('\\'), 'Invalid baseURL.', 'CONFIGURATION_ERROR');
@@ -61,14 +71,17 @@ async function readJson(response, maxBytes, signal) {
       if (done) break;
       size += value.byteLength;
       check(size <= maxBytes, 'Provider response exceeds the byte limit.', 'RESPONSE_TOO_LARGE');
-      chunks.push(Buffer.from(value));
+      chunks.push(new Uint8Array(value));
     }
   } finally {
     // Do not await a malicious/custom stream's non-settling cancellation callback.
     reader.cancel().catch(() => {});
     reader.releaseLock();
   }
-  try { return JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(Buffer.concat(chunks))); }
+  const bytes = new Uint8Array(size);
+  let offset = 0;
+  for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
+  try { return JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes)); }
   catch { throw new AdapterError('Provider returned invalid UTF-8 or JSON.', { code: 'INVALID_RESPONSE' }); }
 }
 
@@ -82,7 +95,7 @@ export class JsonTransport {
 
   constructor({ baseURL, headers = {}, secrets = [], timeoutMs = 30000, maxRetries = 2,
     maxRequestBytes = 8 * 1024 * 1024, maxResponseBytes = 8 * 1024 * 1024,
-    fetchImpl = globalThis.fetch } = {}) {
+    fetchImpl = (input, init) => globalThis.fetch(input, init) } = {}) {
     this.#baseURL = parseBaseURL(baseURL).baseURL;
     check(Number.isSafeInteger(timeoutMs) && timeoutMs > 0 && timeoutMs <= 2147483647,
       'timeoutMs must be a positive 32-bit integer.', 'CONFIGURATION_ERROR');
@@ -109,7 +122,7 @@ export class JsonTransport {
     let lastRequestId;
     try {
       const serialized = body === undefined ? undefined : JSON.stringify(body);
-      check(serialized === undefined || Buffer.byteLength(serialized) <= this.#options.maxRequestBytes,
+      check(serialized === undefined || UTF8_ENCODER.encode(serialized).byteLength <= this.#options.maxRequestBytes,
         'Provider request exceeds the byte limit.', 'REQUEST_TOO_LARGE');
       for (let retry = 0; ; retry++) {
         budget.signal.throwIfAborted();
@@ -144,7 +157,7 @@ export class JsonTransport {
           code: 'RETRY_BUDGET_EXCEEDED', status: response.status, attempts,
           ...(lastRequestId ? { requestId: lastRequestId } : {}),
         });
-        await sleep(delay, undefined, { signal: budget.signal });
+        await sleep(delay, budget.signal);
       }
     } catch (error) {
       const diagnostics = { attempts, ...(lastRequestId ? { requestId: lastRequestId } : {}) };

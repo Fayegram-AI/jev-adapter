@@ -1,4 +1,3 @@
-import { isDeepStrictEqual } from 'node:util';
 import { requireCondition as check } from './errors.mjs';
 
 const own = (value, key) => Object.hasOwn(value, key);
@@ -7,6 +6,15 @@ export const isRecord = value => value !== null && typeof value === 'object' &&
 const isEntry = value => value === null || typeof value === 'string' ||
   Array.isArray(value) || isRecord(value);
 const nonempty = value => typeof value === 'string' && value.trim().length > 0;
+
+function equalJson(left, right) {
+  if (Object.is(left, right)) return true;
+  if (left === null || right === null || typeof left !== 'object' || typeof right !== 'object' ||
+    Object.getPrototypeOf(left) !== Object.getPrototypeOf(right) || Array.isArray(left) !== Array.isArray(right)) return false;
+  if (Array.isArray(left)) return left.length === right.length && left.every((item, i) => equalJson(item, right[i]));
+  const keys = Object.keys(left);
+  return keys.length === Object.keys(right).length && keys.every(key => own(right, key) && equalJson(left[key], right[key]));
+}
 
 /** Reject lossy JSON conversion: cycles, NaN, undefined, Date, getters, etc. */
 export function cloneJson(value, label = 'value', code = 'VALIDATION_ERROR') {
@@ -159,7 +167,7 @@ export function validateResult(input, questions, options = {}) {
         'choice must select a highest-probability option.', 'INVALID_RESPONSE');
     } else {
       exactKeys(answer.legend, labels, 'legend', 'INVALID_RESPONSE');
-      check(labels.every((label, i) => isDeepStrictEqual(answer.legend[label], q.criteria[i])),
+      check(labels.every((label, i) => equalJson(answer.legend[label], q.criteria[i])),
         'Score legend does not match the supplied rubric.', 'INVALID_RESPONSE');
       check(typeof answer.score === 'number' && Number.isFinite(answer.score) &&
         answer.score >= 0 && answer.score <= q.criteria.length - 1,

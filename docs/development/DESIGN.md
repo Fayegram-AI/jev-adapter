@@ -10,10 +10,12 @@ reliably; compatibility and quality must be tested separately.
 
 ## ESM JavaScript with declarations and no runtime dependencies
 
-Use native Node.js fetch, streams, JSON, test runner, and argument parser. Ship
-source plus `.d.mts` types without a transpilation build. Consequence: Node 22.16+
-is required and TypeScript declaration synchronization needs its own tests. A
-browser build and CommonJS entry point are not claimed.
+Use standard fetch, streams, and JSON in the SDK; keep Node's test runner,
+argument parser, and filesystem APIs in development tools and the optional CLI.
+Ship ESM source plus `.d.mts` types without a transpilation build. Consequence:
+Node 22.16+ is required for Node use, while browser use depends on modern web
+APIs and the provider's CORS policy. TypeScript declaration synchronization needs
+its own tests. A CommonJS entry point is not claimed.
 
 ## Provenance is part of the result
 

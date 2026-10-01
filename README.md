@@ -1,5 +1,9 @@
 # Jev Adapter
 
+[![npm version](https://img.shields.io/npm/v/@fayegram-ai/jev-adapter)](https://www.npmjs.com/package/@fayegram-ai/jev-adapter)
+[![MIT license](https://img.shields.io/npm/l/@fayegram-ai/jev-adapter)](LICENSE)
+[![Zero runtime dependencies](https://img.shields.io/badge/runtime%20dependencies-0-brightgreen)](package.json)
+
 A JavaScript SDK that turns supplied information into structured decisions inside
 your application. An optional Node command runner is included for evaluating files.
 Give it a `state` (text or JSON to assess) and one or more `questions`; it returns
@@ -12,7 +16,7 @@ By default, requests go to Jev through TypeSafe's native decision API. You can
 select an OpenAI-compatible endpoint, OpenRouter, Anthropic, or a custom provider
 without changing the `state` / `questions` request format.
 
-**Version 0.1.0 · Node.js 22.16+ · ESM · zero runtime dependencies**
+**Version 0.1.0 · Node.js 22.16+ or modern browsers (SDK) · ESM · zero runtime dependencies**
 
 Source: [Fayegram-AI/jev-adapter](https://github.com/Fayegram-AI/jev-adapter).
 For usage questions and bug reports, use the repository's
@@ -23,9 +27,14 @@ This is an independent integration, not an official TypeSafe product. The built-
 generative backends identify their probabilities as elicited model outputs.
 Changing providers does **not** make their accuracy or calibration equivalent.
 
+## Playground
+
+The [playground](https://jev-pg.fayegram.com/) is a web application built with
+`@fayegram-ai/jev-adapter` for testing decision requests.
+
 ## Use in your application
 
-Use Node.js **22.16 or newer**. Install the package from npm in your application's
+For this server-side example, use Node.js **22.16 or newer**. Install the package from npm in your application's
 directory:
 
 ```bash
@@ -87,6 +96,17 @@ message, with HTTP diagnostics when available; see [errors](docs/reference/ERROR
 Continue with [getting started](docs/guides/GETTING_STARTED.md) for TypeScript,
 CommonJS, and optional command-runner usage, or the [SDK reference](docs/reference/SDK.md)
 for the complete request and result contracts.
+
+## Browser use
+
+The same SDK import works in modern browser applications. Supply credentials
+explicitly; browsers do not have Node's process environment. Direct requests work
+only when the provider permits your web origin through CORS, including the
+authorization and content-type headers. The default Jev endpoint needs TypeSafe
+to allow the app's origin before a browser can call it. A browser-visible API key
+is accessible to users of that app, so use only credentials intended for client
+exposure. See [browser integration](docs/guides/BROWSER.md) for the boundary and
+an example. The optional command runner remains Node-only.
 
 ## Change the backend, not the request
 

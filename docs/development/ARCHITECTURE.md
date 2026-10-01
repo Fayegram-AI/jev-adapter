@@ -79,7 +79,7 @@ Add context/observations through extensions, a protocol through DecisionProvider
 and business routing after evaluation. Future cache or router providers should
 preserve provenance, model identity, input/template revision, and failure semantics.
 
-Not included: a server API, interactive TUI, browser SDK, chat transcript abstraction,
+Not included: a server API, interactive TUI, chat transcript abstraction,
 agent actions, streaming token UX, multimodal prompts, model training, persistent
 state, automatic provider pagination, automated benchmarking against live accounts,
 or a gateway adapter for a non-compatible evaluation protocol. These omissions are

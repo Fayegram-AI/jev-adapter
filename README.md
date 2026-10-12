@@ -1,5 +1,21 @@
 # Jev Adapter
 
+> [!IMPORTANT]
+> **This repository is archived and is no longer maintained.**
+>
+> Development has moved to **[Decision Bridge](https://github.com/Fayegram-AI/decision-bridge)**,
+> the successor to Jev Adapter. Jev remains a supported provider in Decision Bridge.
+>
+> For current source code, documentation, release information, issue reports,
+> and contributions, use the
+> **[Decision Bridge repository](https://github.com/Fayegram-AI/decision-bridge)**.
+>
+> The playground has moved to
+> **[Decision Playground](https://decision-pg.fayegram.com/)**.
+>
+> The documentation below is retained for historical reference and describes
+> the archived `@fayegram-ai/jev-adapter` package.
+
 [![npm version](https://img.shields.io/npm/v/@fayegram-ai/jev-adapter)](https://www.npmjs.com/package/@fayegram-ai/jev-adapter)
 [![MIT license](https://img.shields.io/npm/l/@fayegram-ai/jev-adapter)](LICENSE)
 [![Zero runtime dependencies](https://img.shields.io/badge/runtime%20dependencies-0-brightgreen)](package.json)
@@ -29,8 +45,14 @@ Changing providers does **not** make their accuracy or calibration equivalent.
 
 ## Playground
 
-The [playground](https://jev-pg.fayegram.com/) is a web application built with
-`@fayegram-ai/jev-adapter` for testing decision requests.
+~~The [playground](https://jev-pg.fayegram.com/) is a web application built with
+`@fayegram-ai/jev-adapter` for testing decision requests.~~
+
+The playground has moved to
+**[Decision Playground](https://decision-pg.fayegram.com/)**.
+
+For current playground usage and documentation, see
+[Decision Bridge](https://github.com/Fayegram-AI/decision-bridge).
 
 ## Use in your application
 
